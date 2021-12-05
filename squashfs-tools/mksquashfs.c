@@ -35,7 +35,6 @@
 #include <stddef.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <dirent.h>
@@ -50,9 +49,11 @@
 #include <sys/wait.h>
 #include <limits.h>
 #include <ctype.h>
-#include <sys/sysinfo.h>
 
-#ifndef linux
+#ifdef linux
+#include <sys/sysmacros.h>
+#include <sys/sysinfo.h>
+#else
 #include <sys/sysctl.h>
 #endif
 
@@ -5748,6 +5749,7 @@ static int get_physical_memory()
 	int phys_mem;
 
 	if(num_pages == -1 || page_size == -1) {
+#ifdef linux
 		struct sysinfo sys;
 		int res = sysinfo(&sys);
 
@@ -5756,6 +5758,9 @@ static int get_physical_memory()
 
 		num_pages = sys.totalram;
 		page_size = sys.mem_unit;
+#else
+		return 0;
+#endif
 	}
 
 	phys_mem = num_pages * page_size >> 20;
