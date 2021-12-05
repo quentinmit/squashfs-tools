@@ -92,6 +92,19 @@ extern struct xattr_list *get_xattr(int, unsigned int *, int *);
 extern struct prefix prefix_table[];
 
 
+#ifdef __APPLE__
+ssize_t llistxattr (const char *path, char *list, size_t size)
+{
+	return listxattr(path, list, size, XATTR_NOFOLLOW);
+}
+ssize_t lgetxattr (const char *path, const char *name,
+	void *value, size_t size)
+{
+	return getxattr(path, name, value, size, 0, XATTR_NOFOLLOW);
+}
+#endif
+
+
 int xattr_get_prefix(struct xattr_list *xattr, char *name)
 {
 	int i;
