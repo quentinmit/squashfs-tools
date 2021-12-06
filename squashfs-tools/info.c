@@ -141,6 +141,59 @@ void dump_state()
 }
 
 
+#ifdef __APPLE__
+int sigwaitinfo(const sigset_t *set, siginfo_t *info)
+{
+	int sig;
+	int ret = sigwait(set, &sig);
+	if (ret < 0) {
+		return ret;
+	}
+	return sig;
+}
+
+int sigtimedwait(const sigset_t *set, siginfo_t *info,
+	const struct timespec *timeout)
+{
+	struct itimerval timerval = {
+		.it_interval = { .tv_sec = 0, .tv_usec = 0 },
+		.it_value = {
+			.tv_sec = timeout->tv_sec,
+			.tv_usec = timeout->tv_nsec / 1000
+		}
+	};
+	int ret = setitimer(ITIMER_REAL, &timerval, NULL);
+	if (ret < 0) {
+		return ret;
+	}
+	sigset_t mask1 = *set;
+	sigaddset(&mask1, SIGALRM);
+	ret = sigwaitinfo(&mask1, NULL);
+
+	// Clean up the itimer to make sure it's not delivered elsewhere.
+	timerclear(&timerval.it_value);
+	setitimer(ITIMER_REAL, &timerval, NULL);
+	sigset_t mask2;
+	sigemptyset(&mask2);
+	sigpending(&mask2);
+	if (sigismember(&mask2, SIGALRM)) {
+		sigemptyset(&mask2);
+		sigaddset(&mask2, SIGALRM);
+		int sig;
+		sigwait(&mask2, &sig);
+	}
+
+	if (ret < 0) {
+		return ret;
+	}
+	if (ret == SIGALRM) {
+		return EAGAIN;
+	}
+	return ret;
+}
+#endif
+
+
 void *info_thrd(void *arg)
 {
 	sigset_t sigmask;
