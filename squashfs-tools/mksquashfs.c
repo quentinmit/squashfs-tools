@@ -532,7 +532,7 @@ long long read_bytes(int fd, void *buff, long long bytes)
 	long long res, count;
 
 	for(count = 0; count < bytes; count += res) {
-		int len = (bytes - count) > SSIZE_MAX ? SSIZE_MAX : bytes - count;
+		ssize_t len = (bytes - count) > SSIZE_MAX ? SSIZE_MAX : bytes - count;
 
 		res = read(fd, buff + count, len);
 		if(res < 1) {
@@ -581,7 +581,7 @@ int write_bytes(int fd, void *buff, long long bytes)
 	long long res, count;
 
 	for(count = 0; count < bytes; count += res) {
-		int len = (bytes - count) > SSIZE_MAX ? SSIZE_MAX : bytes - count;
+		ssize_t len = (bytes - count) > SSIZE_MAX ? SSIZE_MAX : bytes - count;
 
 		res = write(fd, buff + count, len);
 		if(res == -1) {
