@@ -153,6 +153,7 @@ REPRODUCIBLE_DEFAULT = 1
 ###############################################
 
 INCLUDEDIR = -I.
+DESTDIR =
 INSTALL_DIR = /usr/local/bin
 
 MKSQUASHFS_OBJS = mksquashfs.o read_fs.o action.o swap.o pseudo.o compressor.o \
@@ -403,8 +404,8 @@ clean:
 
 .PHONY: install
 install: mksquashfs unsquashfs
-	mkdir -p $(INSTALL_DIR)
-	cp mksquashfs $(INSTALL_DIR)
-	cp unsquashfs $(INSTALL_DIR)
-	ln -fs $(INSTALL_DIR)/unsquashfs $(INSTALL_DIR)/sqfscat
-	ln -fs $(INSTALL_DIR)/mksquashfs $(INSTALL_DIR)/sqfstar
+	mkdir -p ${DESTDIR}$(INSTALL_DIR)
+	cp mksquashfs ${DESTDIR}$(INSTALL_DIR)
+	cp unsquashfs ${DESTDIR}$(INSTALL_DIR)
+	ln -fs $(INSTALL_DIR)/unsquashfs ${DESTDIR}$(INSTALL_DIR)/sqfscat
+	ln -fs $(INSTALL_DIR)/mksquashfs ${DESTDIR}$(INSTALL_DIR)/sqfstar
